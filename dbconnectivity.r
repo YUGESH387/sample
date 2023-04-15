@@ -16,8 +16,6 @@ ui <- fluidPage(
     )
   )
 )
-
-# Define server
 server <- function(input, output) {
   con <- dbConnect(RSQLite::SQLite(), "students.db")
   dbExecute(con, "CREATE TABLE IF NOT EXISTS students (
@@ -30,12 +28,6 @@ server <- function(input, output) {
                    VALUES (?,?,?)",params = c(input$name,input$major,input$email))
     output$students <- renderTable(dbGetQuery(con, "SELECT * FROM students"))
   })
-
-
-
-  # Display all students when app is launched
   output$students <- renderTable(dbGetQuery(con, "SELECT * FROM students"))
 }
-
-# Run app
 shinyApp(ui, server)
