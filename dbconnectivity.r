@@ -1,15 +1,41 @@
-library(odbc)
+library(RSQLite)
+library(shiny)
 
-# Set up the connection details
-con <- dbConnect(odbc(),
-                 Driver = "MySQL ODBC 8.0 Unicode Driver",
-                 Server = "localhost",
-                 Database = "mydatabase",
-                 UID = "myusername",
-                 PWD = "mypassword")
 
-# Query the database
-result <- dbGetQuery(con, "SELECT * FROM mytable")
+ui <- fluidPage(
+  titlePanel("Student Information System"),
+  sidebarLayout(
+    sidebarPanel(
+      textInput("name", "Name:"),
+      textInput("email", "Email:"),
+      selectInput("major", "Dept:", c("AI&DS", "CSE", "CSBS", "BT")),
+      actionButton("add", "Add Student"),
+    ),
+    mainPanel(
+      tableOutput("students")
+    )
+  )
+)
 
-# Close the connection
-dbDisconnect(con)
+# Define server
+server <- function(input, output) {
+  con <- dbConnect(RSQLite::SQLite(), "students.db")
+  dbExecute(con, "CREATE TABLE IF NOT EXISTS students (
+                 id INTEGER PRIMARY KEY,
+                 name TEXT,
+                 email TEXT,
+                 major TEXT)")
+  observeEvent(input$add, {
+    dbExecute(con, "INSERT INTO students (name,major,email)
+                   VALUES (?,?,?)",params = c(input$name,input$major,input$email))
+    output$students <- renderTable(dbGetQuery(con, "SELECT * FROM students"))
+  })
+
+
+
+  # Display all students when app is launched
+  output$students <- renderTable(dbGetQuery(con, "SELECT * FROM students"))
+}
+
+# Run app
+shinyApp(ui, server)
