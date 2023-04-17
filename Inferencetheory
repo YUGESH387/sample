@@ -1,0 +1,75 @@
+# Define the predicates
+
+parents = [
+
+        ('John', 'Mary'),
+
+        ('John', 'Mark'),
+
+        ('Mary', 'Anna'),
+
+        ('Mary', 'David'),
+
+        ('Mark', 'Peter')
+
+    ]
+
+def is_parent(x, y):
+
+    return (x, y) in parents
+
+def is_grandparent(x, y):
+
+    for z in range(5):  # limit search to depth 10
+
+        if is_parent(x, parents[z][1]) and is_parent(parents[z][1], y):
+
+            return True
+
+    return False
+
+def is_sibling(x, y):
+
+    for z in range(5):
+
+        if is_parent(parents[z][0], x) and is_parent(parents[z][0], y):
+
+            return True
+
+    return False
+
+# Define some queries
+
+queries = [
+
+    ('John', 'David'),
+
+    ('Mary', 'Mark'),
+
+    ('David', 'Mary'),
+
+    ('Anna', 'Mark')
+
+]
+
+# Perform inference using the predicates
+
+for query in queries:
+
+    x, y = query
+
+    if is_parent(x, y):
+
+        print(f"{x} is the parent of {y}")
+
+    elif is_grandparent(x, y):
+
+        print(f"{x} is the grandparent of {y}")
+
+    elif is_sibling(x, y):
+
+        print(f"{x} is the sibling of {y}")
+
+    else:
+
+        print(f"{x} is not related to {y}")
